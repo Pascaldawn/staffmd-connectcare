@@ -16,9 +16,9 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/companies" className="text-gray-600 hover:text-primary">Companies</Link>
-            <Link to="/healthcare-providers" className="text-gray-600 hover:text-primary">Healthcare Providers</Link>
-            <Link to="/register" className="btn-primary">Get Started</Link>
+            <Link to="/register/company" className="text-gray-600 hover:text-primary">Companies</Link>
+            <Link to="/register/provider" className="text-gray-600 hover:text-primary">Healthcare Providers</Link>
+            <Link to="/register/company" className="btn-primary">Get Started</Link>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -39,21 +39,21 @@ export function Header() {
           <div className="md:hidden py-4">
             <div className="flex flex-col space-y-4">
               <Link
-                to="/companies"
+                to="/register/company"
                 className="text-gray-600 hover:text-primary px-2 py-1"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Companies
               </Link>
               <Link
-                to="/healthcare-providers"
+                to="/register/provider"
                 className="text-gray-600 hover:text-primary px-2 py-1"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Healthcare Providers
               </Link>
               <Link
-                to="/register"
+                to="/register/company"
                 className="btn-primary text-center"
                 onClick={() => setIsMenuOpen(false)}
               >

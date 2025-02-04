@@ -13,11 +13,11 @@ export function Hero() {
             Connect your employees with healthcare professionals through our secure telehealth platform
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-            <Link to="/register" className="btn-primary flex items-center justify-center gap-2">
+            <Link to="/register/company" className="btn-primary flex items-center justify-center gap-2">
               Register Your Company
               <ArrowRight className="h-5 w-5" />
             </Link>
-            <Link to="/healthcare-providers" className="btn-secondary flex items-center justify-center gap-2">
+            <Link to="/register/provider" className="btn-secondary flex items-center justify-center gap-2">
               Join as Healthcare Provider
               <ArrowRight className="h-5 w-5" />
             </Link>
