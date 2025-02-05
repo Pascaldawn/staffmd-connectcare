@@ -1,3 +1,4 @@
+
 import { ArrowRight, Building2, UserRound, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -25,13 +26,16 @@ export function Hero() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          <div className="bg-white p-6 rounded-lg shadow-md card-hover">
+          <Link 
+            to="/register/company" 
+            className="bg-white p-6 rounded-lg shadow-md card-hover transition-all hover:scale-105"
+          >
             <Building2 className="h-12 w-12 text-primary mb-4" />
             <h3 className="text-xl font-semibold mb-2">Company Registration</h3>
             <p className="text-gray-600">
               Register your business and manage healthcare benefits for your employees
             </p>
-          </div>
+          </Link>
 
           <div className="bg-white p-6 rounded-lg shadow-md card-hover">
             <UserRound className="h-12 w-12 text-primary mb-4" />
