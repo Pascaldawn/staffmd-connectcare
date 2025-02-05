@@ -1,9 +1,11 @@
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Building2, Mail, Phone, User } from "lucide-react";
+import { Building2, Mail, Phone, User, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const companyFormSchema = z.object({
   companyName: z.string().min(2, "Company name must be at least 2 characters"),
@@ -31,6 +33,14 @@ export default function CompanyRegistration() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
+        <Link
+          to="/"
+          className="inline-flex items-center text-primary hover:text-primary/90 mb-6"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home Page
+        </Link>
+        
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Register Your Company</h1>
         
         <Form {...form}>

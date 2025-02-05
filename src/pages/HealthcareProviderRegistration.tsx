@@ -1,10 +1,12 @@
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Stethoscope, Mail, Phone, User, Building2 } from "lucide-react";
+import { Stethoscope, Mail, Phone, User, Building2, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const providerFormSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -36,6 +38,14 @@ export default function HealthcareProviderRegistration() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
+        <Link
+          to="/"
+          className="inline-flex items-center text-secondary hover:text-secondary/90 mb-6"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home Page
+        </Link>
+
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Healthcare Provider Registration</h1>
         
         <Form {...form}>
