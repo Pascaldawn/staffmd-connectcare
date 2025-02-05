@@ -37,13 +37,16 @@ export function Hero() {
             </p>
           </Link>
 
-          <div className="bg-white p-6 rounded-lg shadow-md card-hover">
+          <Link 
+            to="/register/provider" 
+            className="bg-white p-6 rounded-lg shadow-md card-hover transition-all hover:scale-105"
+          >
             <UserRound className="h-12 w-12 text-primary mb-4" />
             <h3 className="text-xl font-semibold mb-2">Healthcare Providers</h3>
             <p className="text-gray-600">
               Connect with businesses and provide telehealth services to their employees
             </p>
-          </div>
+          </Link>
 
           <div className="bg-white p-6 rounded-lg shadow-md card-hover">
             <Calendar className="h-12 w-12 text-primary mb-4" />
