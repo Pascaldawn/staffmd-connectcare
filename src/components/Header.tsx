@@ -1,3 +1,4 @@
+
 import { Building2, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -18,7 +19,7 @@ export function Header() {
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/register/company" className="text-gray-600 hover:text-primary">Companies</Link>
             <Link to="/register/provider" className="text-gray-600 hover:text-primary">Healthcare Providers</Link>
-            <Link to="/register/company" className="btn-primary">Get Started</Link>
+            <Link to="/register" className="btn-primary">Get Started</Link>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -53,7 +54,7 @@ export function Header() {
                 Healthcare Providers
               </Link>
               <Link
-                to="/register/company"
+                to="/register"
                 className="btn-primary text-center"
                 onClick={() => setIsMenuOpen(false)}
               >
