@@ -14,6 +14,8 @@ import ProfileVerification from "./pages/ProfileVerification";
 import CompanyDashboard from "./pages/CompanyDashboard";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import Search from "./pages/Search";
+import CompanyProfile from "./pages/profile/CompanyProfile";
+import ProviderProfile from "./pages/profile/ProviderProfile";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +34,8 @@ const App = () => (
           <Route path="/profile/verify" element={<ProfileVerification />} />
           <Route path="/dashboard/company" element={<CompanyDashboard />} />
           <Route path="/dashboard/provider" element={<ProviderDashboard />} />
+          <Route path="/profile/company" element={<CompanyProfile />} />
+          <Route path="/profile/provider" element={<ProviderProfile />} />
           <Route path="/search" element={<Search />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
