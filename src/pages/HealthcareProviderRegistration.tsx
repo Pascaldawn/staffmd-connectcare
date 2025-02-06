@@ -6,7 +6,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Stethoscope, Mail, Phone, User, Building2, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const providerFormSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -18,6 +19,9 @@ const providerFormSchema = z.object({
 });
 
 export default function HealthcareProviderRegistration() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const form = useForm<z.infer<typeof providerFormSchema>>({
     resolver: zodResolver(providerFormSchema),
     defaultValues: {
@@ -32,7 +36,11 @@ export default function HealthcareProviderRegistration() {
 
   const onSubmit = (values: z.infer<typeof providerFormSchema>) => {
     console.log("Form submitted:", values);
-    // TODO: Handle form submission
+    toast({
+      title: "Registration successful",
+      description: "Please proceed to verify your medical credentials.",
+    });
+    navigate("/profile/verify");
   };
 
   return (

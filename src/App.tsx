@@ -10,6 +10,7 @@ import CompanyRegistration from "./pages/CompanyRegistration";
 import HealthcareProviderRegistration from "./pages/HealthcareProviderRegistration";
 import RegisterChoice from "./pages/RegisterChoice";
 import BookAppointment from "./pages/BookAppointment";
+import ProfileVerification from "./pages/ProfileVerification";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/register/company" element={<CompanyRegistration />} />
           <Route path="/register/provider" element={<HealthcareProviderRegistration />} />
           <Route path="/book-appointment" element={<BookAppointment />} />
+          <Route path="/profile/verify" element={<ProfileVerification />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
