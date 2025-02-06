@@ -13,6 +13,7 @@ import BookAppointment from "./pages/BookAppointment";
 import ProfileVerification from "./pages/ProfileVerification";
 import CompanyDashboard from "./pages/CompanyDashboard";
 import ProviderDashboard from "./pages/ProviderDashboard";
+import Search from "./pages/Search";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/profile/verify" element={<ProfileVerification />} />
           <Route path="/dashboard/company" element={<CompanyDashboard />} />
           <Route path="/dashboard/provider" element={<ProviderDashboard />} />
+          <Route path="/search" element={<Search />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
