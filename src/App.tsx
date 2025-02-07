@@ -16,6 +16,8 @@ import ProviderDashboard from "./pages/ProviderDashboard";
 import Search from "./pages/Search";
 import CompanyProfile from "./pages/profile/CompanyProfile";
 import ProviderProfile from "./pages/profile/ProviderProfile";
+import ScheduleAppointment from "./pages/ScheduleAppointment";
+import AppointmentConfirmation from "./pages/AppointmentConfirmation";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +33,8 @@ const App = () => (
           <Route path="/register/company" element={<CompanyRegistration />} />
           <Route path="/register/provider" element={<HealthcareProviderRegistration />} />
           <Route path="/book-appointment" element={<BookAppointment />} />
+          <Route path="/schedule-appointment" element={<ScheduleAppointment />} />
+          <Route path="/appointment-confirmation" element={<AppointmentConfirmation />} />
           <Route path="/profile/verify" element={<ProfileVerification />} />
           <Route path="/dashboard/company" element={<CompanyDashboard />} />
           <Route path="/dashboard/provider" element={<ProviderDashboard />} />

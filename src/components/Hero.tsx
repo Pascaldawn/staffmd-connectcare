@@ -49,7 +49,7 @@ export function Hero() {
           </Link>
 
           <Link 
-            to="/book-appointment" 
+            to="/schedule-appointment" 
             className="bg-white p-6 rounded-lg shadow-md card-hover transition-all hover:scale-105"
           >
             <Calendar className="h-12 w-12 text-primary mb-4" />
