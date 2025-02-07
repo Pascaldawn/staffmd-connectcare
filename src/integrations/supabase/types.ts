@@ -9,6 +9,57 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          end_time: string
+          id: string
+          notes: string | null
+          provider_id: string | null
+          start_time: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          end_time: string
+          id?: string
+          notes?: string | null
+          provider_id?: string | null
+          start_time: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          end_time?: string
+          id?: string
+          notes?: string | null
+          provider_id?: string | null
+          start_time?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -38,6 +89,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      provider_availability: {
+        Row: {
+          created_at: string
+          day_of_week: number | null
+          end_time: string
+          id: string
+          is_available: boolean | null
+          provider_id: string | null
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week?: number | null
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          provider_id?: string | null
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number | null
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          provider_id?: string | null
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_availability_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

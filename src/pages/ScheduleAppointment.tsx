@@ -6,6 +6,8 @@ import { ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { addDays, format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const timeSlots = [
   "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"
@@ -16,7 +18,26 @@ export default function ScheduleAppointment() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleBookAppointment = () => {
+  const { data: availableProviders } = useQuery({
+    queryKey: ['providers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('provider_availability')
+        .select(`
+          *,
+          profiles:provider_id (
+            first_name,
+            last_name
+          )
+        `)
+        .eq('is_available', true);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const handleBookAppointment = async () => {
     if (!date || !selectedTime) {
       toast({
         title: "Please select both date and time",
@@ -25,18 +46,44 @@ export default function ScheduleAppointment() {
       return;
     }
 
-    // In a real app, this would make an API call to save the appointment
-    toast({
-      title: "Appointment Booked!",
-      description: `Your appointment is scheduled for ${format(date, "MMMM d, yyyy")} at ${selectedTime}`,
-    });
-    
-    navigate("/appointment-confirmation", { 
-      state: { 
-        date, 
-        time: selectedTime 
-      } 
-    });
+    try {
+      // Convert date and time to UTC timestamp
+      const [hours, minutes] = selectedTime.split(':');
+      const startTime = new Date(date);
+      startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      
+      const endTime = new Date(startTime);
+      endTime.setHours(startTime.getHours() + 1);
+
+      const { error } = await supabase
+        .from('appointments')
+        .insert({
+          start_time: startTime.toISOString(),
+          end_time: endTime.toISOString(),
+          provider_id: availableProviders?.[0]?.provider_id // For now, just use the first available provider
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Appointment Booked!",
+        description: `Your appointment is scheduled for ${format(date, "MMMM d, yyyy")} at ${selectedTime}`,
+      });
+      
+      navigate("/appointment-confirmation", { 
+        state: { 
+          date, 
+          time: selectedTime 
+        } 
+      });
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+      toast({
+        title: "Error booking appointment",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    }
   };
 
   const disabledDays = {
