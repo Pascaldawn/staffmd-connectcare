@@ -7,6 +7,69 @@ import { Input } from "@/components/ui/input";
 import { Building2, Mail, Phone, User, ArrowLeft, ArrowRight, MapPin, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+
+// Industry options
+const industries = [
+  "Technology",
+  "Healthcare",
+  "Finance",
+  "Education",
+  "Manufacturing",
+  "Retail",
+  "Construction",
+  "Transportation",
+  "Entertainment",
+  "Other"
+];
+
+// Staff size options
+const staffSizes = [
+  "2-50",
+  "51-100",
+  "101-200",
+  "201-500",
+  "Above 500"
+];
+
+// Country options (simplified list - can be expanded)
+const countries = [
+  "United States",
+  "Canada",
+  "United Kingdom",
+  "Australia",
+  // Add more countries as needed
+];
+
+// States by country (simplified - can be expanded)
+const statesByCountry: { [key: string]: string[] } = {
+  "United States": [
+    "California",
+    "New York",
+    "Texas",
+    "Florida",
+    // Add more states
+  ],
+  "Canada": [
+    "Ontario",
+    "Quebec",
+    "British Columbia",
+    // Add more provinces
+  ],
+  "United Kingdom": [
+    "England",
+    "Scotland",
+    "Wales",
+    "Northern Ireland"
+  ],
+  "Australia": [
+    "New South Wales",
+    "Victoria",
+    "Queensland",
+    // Add more states
+  ]
+};
 
 const basicInfoSchema = z.object({
   companyName: z.string().min(2, "Company name must be at least 2 characters"),
@@ -16,14 +79,17 @@ const basicInfoSchema = z.object({
 });
 
 const companyDetailsSchema = z.object({
-  industry: z.string().min(2, "Industry must be at least 2 characters"),
-  size: z.string().min(1, "Please enter company size"),
-  location: z.string().min(2, "Location must be at least 2 characters"),
+  industry: z.string().min(1, "Please select an industry"),
+  size: z.string().min(1, "Please select company size"),
+  country: z.string().min(1, "Please select a country"),
+  region: z.string().min(1, "Please select a state/region"),
 });
 
 export default function CompanyRegistration() {
   const [step, setStep] = useState(1);
   const [basicInfo, setBasicInfo] = useState<z.infer<typeof basicInfoSchema> | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
+  const { toast } = useToast();
   
   const basicForm = useForm<z.infer<typeof basicInfoSchema>>({
     resolver: zodResolver(basicInfoSchema),
@@ -40,7 +106,8 @@ export default function CompanyRegistration() {
     defaultValues: {
       industry: "",
       size: "",
-      location: "",
+      country: "",
+      region: "",
     },
   });
 
@@ -49,9 +116,19 @@ export default function CompanyRegistration() {
     setStep(2);
   };
 
-  const onSubmitDetails = (values: z.infer<typeof companyDetailsSchema>) => {
-    console.log("Form submitted:", { ...basicInfo, ...values });
-    // TODO: Handle complete form submission
+  const onSubmitDetails = async (values: z.infer<typeof companyDetailsSchema>) => {
+    const completeData = { ...basicInfo, ...values };
+    console.log("Form submitted:", completeData);
+    
+    // Show success notification
+    toast({
+      title: "Registration Successful",
+      description: `A confirmation email has been sent to ${basicInfo?.email}`,
+    });
+
+    // TODO: Integrate with backend to:
+    // 1. Save company data
+    // 2. Send confirmation email
   };
 
   return (
@@ -174,12 +251,20 @@ export default function CompanyRegistration() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Industry</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Building2 className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                        <Input className="pl-10" placeholder="Enter your industry" {...field} />
-                      </div>
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an industry" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {industries.map((industry) => (
+                          <SelectItem key={industry} value={industry}>
+                            {industry}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -191,12 +276,20 @@ export default function CompanyRegistration() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Company Size</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Users className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                        <Input className="pl-10" placeholder="Enter number of employees" {...field} />
-                      </div>
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select company size" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {staffSizes.map((size) => (
+                          <SelectItem key={size} value={size}>
+                            {size}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -204,16 +297,57 @@ export default function CompanyRegistration() {
 
               <FormField
                 control={detailsForm.control}
-                name="location"
+                name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Location</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                        <Input className="pl-10" placeholder="Enter company location" {...field} />
-                      </div>
-                    </FormControl>
+                    <FormLabel>Country</FormLabel>
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedCountry(value);
+                        // Reset region when country changes
+                        detailsForm.setValue("region", "");
+                      }} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a country" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {countries.map((country) => (
+                          <SelectItem key={country} value={country}>
+                            {country}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={detailsForm.control}
+                name="region"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State/Region</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a state/region" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {selectedCountry && statesByCountry[selectedCountry]?.map((region) => (
+                          <SelectItem key={region} value={region}>
+                            {region}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
