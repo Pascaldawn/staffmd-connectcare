@@ -65,7 +65,10 @@ export type Database = {
           avatar_url: string | null
           calendar_preferences: Json | null
           first_name: string | null
+          google_calendar_token: Json | null
+          google_refresh_token: string | null
           id: string
+          is_calendar_connected: boolean | null
           last_name: string | null
           reminder_settings: Json | null
           updated_at: string
@@ -74,7 +77,10 @@ export type Database = {
           avatar_url?: string | null
           calendar_preferences?: Json | null
           first_name?: string | null
+          google_calendar_token?: Json | null
+          google_refresh_token?: string | null
           id: string
+          is_calendar_connected?: boolean | null
           last_name?: string | null
           reminder_settings?: Json | null
           updated_at?: string
@@ -83,7 +89,10 @@ export type Database = {
           avatar_url?: string | null
           calendar_preferences?: Json | null
           first_name?: string | null
+          google_calendar_token?: Json | null
+          google_refresh_token?: string | null
           id?: string
+          is_calendar_connected?: boolean | null
           last_name?: string | null
           reminder_settings?: Json | null
           updated_at?: string
