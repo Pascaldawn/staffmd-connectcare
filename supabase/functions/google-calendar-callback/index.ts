@@ -44,8 +44,62 @@ serve(async (req) => {
 
     const tokens = await tokenResponse.json()
 
+    if (tokens.error) {
+      throw new Error(`Token error: ${tokens.error}`)
+    }
+
     // Update user profile with tokens
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    
+    // Sync existing appointments for this user
+    const { data: appointments, error: appointmentsError } = await supabase
+      .from('appointments')
+      .select('*')
+      .or(`provider_id.eq.${state},company_id.eq.${state}`)
+      .eq('sync_status', 'pending')
+
+    if (!appointmentsError && appointments) {
+      for (const appointment of appointments) {
+        try {
+          const calendarEvent = {
+            summary: `Medical Appointment`,
+            description: appointment.notes || 'No additional details provided',
+            start: {
+              dateTime: appointment.start_time,
+              timeZone: 'UTC',
+            },
+            end: {
+              dateTime: appointment.end_time,
+              timeZone: 'UTC',
+            },
+          }
+
+          const eventResponse = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${tokens.access_token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(calendarEvent),
+          })
+
+          const eventData = await eventResponse.json()
+
+          if (eventData.id) {
+            await supabase
+              .from('appointments')
+              .update({
+                calendar_event_id: eventData.id,
+                sync_status: 'synced'
+              })
+              .eq('id', appointment.id)
+          }
+        } catch (error) {
+          console.error('Error syncing appointment:', error)
+        }
+      }
+    }
+
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
@@ -66,6 +120,7 @@ serve(async (req) => {
       },
     })
   } catch (error) {
+    console.error('Error in google-calendar-callback:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

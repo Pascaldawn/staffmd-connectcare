@@ -9,8 +9,44 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      appointment_reminders: {
+        Row: {
+          appointment_id: string | null
+          created_at: string
+          id: string
+          reminder_type: string
+          scheduled_for: string
+          sent_at: string | null
+        }
+        Insert: {
+          appointment_id?: string | null
+          created_at?: string
+          id?: string
+          reminder_type: string
+          scheduled_for: string
+          sent_at?: string | null
+        }
+        Update: {
+          appointment_id?: string | null
+          created_at?: string
+          id?: string
+          reminder_type?: string
+          scheduled_for?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_reminders_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
+          calendar_event_id: string | null
           company_id: string | null
           created_at: string
           end_time: string
@@ -19,9 +55,11 @@ export type Database = {
           provider_id: string | null
           start_time: string
           status: string | null
+          sync_status: string | null
           updated_at: string
         }
         Insert: {
+          calendar_event_id?: string | null
           company_id?: string | null
           created_at?: string
           end_time: string
@@ -30,9 +68,11 @@ export type Database = {
           provider_id?: string | null
           start_time: string
           status?: string | null
+          sync_status?: string | null
           updated_at?: string
         }
         Update: {
+          calendar_event_id?: string | null
           company_id?: string | null
           created_at?: string
           end_time?: string
@@ -41,6 +81,7 @@ export type Database = {
           provider_id?: string | null
           start_time?: string
           status?: string | null
+          sync_status?: string | null
           updated_at?: string
         }
         Relationships: [
