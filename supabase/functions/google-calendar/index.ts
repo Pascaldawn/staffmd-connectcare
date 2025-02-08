@@ -1,6 +1,6 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { serve } from "https://deno.fresh.run/std@v9.6.1/http/server.ts"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,7 +19,7 @@ serve(async (req) => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    const { data: { session }, error: authError } = await supabase.auth.getSession(req.headers.get('Authorization')?.split(' ')[1] || '')
+    const { data: { session }, error: authError } = await supabase.auth.getSession()
     
     if (authError || !session) {
       throw new Error('Not authenticated')
