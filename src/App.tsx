@@ -21,6 +21,7 @@ import ProviderProfile from "./pages/profile/ProviderProfile";
 import ScheduleAppointment from "./pages/ScheduleAppointment";
 import AppointmentConfirmation from "./pages/AppointmentConfirmation";
 import CalendarConnected from "./pages/CalendarConnected";
+import TermsOfService from "./pages/TermsOfService";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/profile/provider" element={<ProviderProfile />} />
             <Route path="/search" element={<Search />} />
             <Route path="/calendar-connected" element={<CalendarConnected />} />
+            <Route path="/terms" element={<TermsOfService />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

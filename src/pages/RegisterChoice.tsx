@@ -8,7 +8,7 @@ export default function RegisterChoice() {
       <div className="max-w-3xl mx-auto text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Choose Registration Type</h1>
         
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
           <Link 
             to="/register/company" 
             className="flex flex-col items-center p-8 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100"
@@ -31,6 +31,13 @@ export default function RegisterChoice() {
             </p>
           </Link>
         </div>
+
+        <p className="text-sm text-gray-600">
+          By registering, you agree to our{" "}
+          <Link to="/terms" className="text-primary hover:underline">
+            Terms of Service
+          </Link>
+        </p>
       </div>
     </div>
   );
