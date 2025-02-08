@@ -7,8 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 const CompanyDashboard = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Company Dashboard</h1>
@@ -76,6 +79,12 @@ const CompanyDashboard = () => {
                   <p className="text-xs text-muted-foreground">Thanks for the opportunity...</p>
                 </div>
               </div>
+              <button 
+                onClick={() => navigate('/messaging')}
+                className="w-full mt-4 text-sm text-primary hover:underline"
+              >
+                View all messages
+              </button>
             </div>
           </CardContent>
         </Card>
@@ -94,6 +103,13 @@ const CompanyDashboard = () => {
               <button className="flex items-center w-full px-4 py-2 text-sm text-left transition-colors rounded-md hover:bg-muted">
                 <Calendar className="w-4 h-4 mr-2" />
                 Schedule New Appointment
+              </button>
+              <button 
+                onClick={() => navigate('/messaging')}
+                className="flex items-center w-full px-4 py-2 text-sm text-left transition-colors rounded-md hover:bg-muted"
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Open Messages
               </button>
             </div>
           </CardContent>

@@ -22,6 +22,7 @@ import ScheduleAppointment from "./pages/ScheduleAppointment";
 import AppointmentConfirmation from "./pages/AppointmentConfirmation";
 import CalendarConnected from "./pages/CalendarConnected";
 import TermsOfService from "./pages/TermsOfService";
+import Messaging from "./pages/Messaging";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/search" element={<Search />} />
             <Route path="/calendar-connected" element={<CalendarConnected />} />
             <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/messaging" element={<Messaging />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

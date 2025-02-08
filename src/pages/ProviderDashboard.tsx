@@ -7,8 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 const ProviderDashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Provider Dashboard</h1>
@@ -76,6 +79,12 @@ const ProviderDashboard = () => {
                   <p className="text-xs text-muted-foreground">Thank you for your time...</p>
                 </div>
               </div>
+              <button 
+                onClick={() => navigate('/messaging')}
+                className="w-full mt-4 text-sm text-primary hover:underline"
+              >
+                View all messages
+              </button>
             </div>
           </CardContent>
         </Card>
@@ -88,19 +97,26 @@ const ProviderDashboard = () => {
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center">
-                <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                <Users className="h-4 h-4 mr-2 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">City Hospital</p>
                   <p className="text-xs text-muted-foreground">3 completed shifts</p>
                 </div>
               </div>
               <div className="flex items-center">
-                <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                <Users className="h-4 h-4 mr-2 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Private Practice LLC</p>
                   <p className="text-xs text-muted-foreground">1 upcoming shift</p>
                 </div>
               </div>
+              <button 
+                onClick={() => navigate('/messaging')}
+                className="flex items-center w-full px-4 py-2 text-sm text-left transition-colors rounded-md hover:bg-muted mt-4"
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Open Messages
+              </button>
             </div>
           </CardContent>
         </Card>
