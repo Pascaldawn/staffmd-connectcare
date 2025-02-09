@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,13 +40,19 @@ const StaffAccounts = () => {
       const { data, error } = await supabase
         .from('staff_accounts')
         .select(`
-          *,
-          staff:profiles!user_id(first_name, last_name, id)
+          id,
+          company_id,
+          user_id,
+          staff:profiles!user_id (
+            first_name,
+            last_name,
+            id
+          )
         `)
         .eq('company_id', user.user.id);
 
       if (error) throw error;
-      return data as StaffAccount[];
+      return (data || []) as StaffAccount[];
     }
   });
 
