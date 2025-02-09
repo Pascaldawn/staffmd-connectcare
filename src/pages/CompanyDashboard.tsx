@@ -1,5 +1,4 @@
-
-import { Activity, Search, Users, Calendar, MessageSquare } from "lucide-react";
+import { Activity, Search, Users, Calendar, MessageSquare, Star } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -8,9 +7,45 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Appointment {
+  id: string;
+  provider_id: string;
+  start_time: string;
+  end_time: string;
+  status: string;
+}
 
 const CompanyDashboard = () => {
   const navigate = useNavigate();
+  const [completedAppointments, setCompletedAppointments] = useState<Appointment[]>([]);
+  
+  useEffect(() => {
+    const fetchCompletedAppointments = async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return;
+
+      const { data, error } = await supabase
+        .from("appointments")
+        .select("id, provider_id, start_time, end_time, status")
+        .eq("company_id", user.user.id)
+        .eq("status", "completed")
+        .not("id", "in", `(
+          SELECT appointment_id 
+          FROM reviews 
+          WHERE reviewer_id = '${user.user.id}'
+        )`);
+
+      if (!error && data) {
+        setCompletedAppointments(data);
+      }
+    };
+
+    fetchCompletedAppointments();
+  }, []);
   
   return (
     <div className="container mx-auto p-6">
@@ -115,6 +150,40 @@ const CompanyDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {completedAppointments.length > 0 && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Pending Reviews</CardTitle>
+            <CardDescription>
+              Share your feedback about completed appointments
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {completedAppointments.map((appointment) => (
+                <div key={appointment.id} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">
+                      Appointment on {new Date(appointment.start_time).toLocaleDateString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(appointment.start_time).toLocaleTimeString()} - {new Date(appointment.end_time).toLocaleTimeString()}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => navigate(`/feedback/${appointment.id}`)}
+                  >
+                    <Star className="w-4 h-4 mr-2" />
+                    Submit Review
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

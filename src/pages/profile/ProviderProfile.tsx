@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import Reviews from "../reviews/Reviews";
+import { useParams } from "react-router-dom";
 
 // Mock data - replace with real data when backend is integrated
 const initialProfile = {
@@ -23,6 +25,7 @@ const ProviderProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState(initialProfile);
   const { toast } = useToast();
+  const { id } = useParams();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,6 +171,11 @@ const ProviderProfile = () => {
           </Button>
         )}
       </form>
+
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold mb-6">Reviews & Feedback</h2>
+        {id && <Reviews userId={id} />}
+      </div>
     </div>
   );
 };

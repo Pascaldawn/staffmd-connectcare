@@ -149,6 +149,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          average_rating: number | null
           calendar_preferences: Json | null
           first_name: string | null
           google_calendar_token: Json | null
@@ -157,10 +158,12 @@ export type Database = {
           is_calendar_connected: boolean | null
           last_name: string | null
           reminder_settings: Json | null
+          total_reviews: number | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          average_rating?: number | null
           calendar_preferences?: Json | null
           first_name?: string | null
           google_calendar_token?: Json | null
@@ -169,10 +172,12 @@ export type Database = {
           is_calendar_connected?: boolean | null
           last_name?: string | null
           reminder_settings?: Json | null
+          total_reviews?: number | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          average_rating?: number | null
           calendar_preferences?: Json | null
           first_name?: string | null
           google_calendar_token?: Json | null
@@ -181,6 +186,7 @@ export type Database = {
           is_calendar_connected?: boolean | null
           last_name?: string | null
           reminder_settings?: Json | null
+          total_reviews?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -220,6 +226,61 @@ export type Database = {
           {
             foreignKeyName: "provider_availability_provider_id_fkey"
             columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          appointment_id: string | null
+          content: string
+          created_at: string
+          id: string
+          is_visible: boolean | null
+          rating: number
+          reviewee_id: string | null
+          reviewer_id: string | null
+        }
+        Insert: {
+          appointment_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          rating: number
+          reviewee_id?: string | null
+          reviewer_id?: string | null
+        }
+        Update: {
+          appointment_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_visible?: boolean | null
+          rating?: number
+          reviewee_id?: string | null
+          reviewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewee_id_fkey"
+            columns: ["reviewee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
