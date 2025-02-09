@@ -25,6 +25,9 @@ import TermsOfService from "./pages/TermsOfService";
 import Messaging from "./pages/Messaging";
 import FeedbackForm from "./pages/reviews/FeedbackForm";
 import Analytics from "./pages/Analytics";
+import PaymentHistory from "./pages/payments/PaymentHistory";
+import StaffAccounts from "./pages/company/StaffAccounts";
+import ProcessPayment from "./pages/payments/ProcessPayment";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +58,10 @@ const App = () => (
             <Route path="/messaging" element={<Messaging />} />
             <Route path="/feedback/:appointmentId" element={<FeedbackForm />} />
             <Route path="/analytics" element={<Analytics />} />
+            {/* New payment and staff-related routes */}
+            <Route path="/payments/history" element={<PaymentHistory />} />
+            <Route path="/company/staff" element={<StaffAccounts />} />
+            <Route path="/payments/process/:appointmentId" element={<ProcessPayment />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>

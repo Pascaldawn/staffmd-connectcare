@@ -53,6 +53,7 @@ export type Database = {
           end_time: string
           id: string
           notes: string | null
+          payment_status: string | null
           provider_id: string | null
           start_time: string
           status: string | null
@@ -67,6 +68,7 @@ export type Database = {
           end_time: string
           id?: string
           notes?: string | null
+          payment_status?: string | null
           provider_id?: string | null
           start_time: string
           status?: string | null
@@ -81,6 +83,7 @@ export type Database = {
           end_time?: string
           id?: string
           notes?: string | null
+          payment_status?: string | null
           provider_id?: string | null
           start_time?: string
           status?: string | null
@@ -171,6 +174,110 @@ export type Database = {
           {
             foreignKeyName: "messages_sender_id_fkey"
             columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          appointment_id: string | null
+          bank_transfer_reference: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          paid_by: string | null
+          paid_to: string | null
+          payment_date: string | null
+          payment_method: string
+          payment_proof_url: string | null
+          status: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          amount: number
+          appointment_id?: string | null
+          bank_transfer_reference?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_by?: string | null
+          paid_to?: string | null
+          payment_date?: string | null
+          payment_method: string
+          payment_proof_url?: string | null
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          amount?: number
+          appointment_id?: string | null
+          bank_transfer_reference?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_by?: string | null
+          paid_to?: string | null
+          payment_date?: string | null
+          payment_method?: string
+          payment_proof_url?: string | null
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_paid_by_fkey"
+            columns: ["paid_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_paid_by_fkey"
+            columns: ["paid_by"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "payments_paid_to_fkey"
+            columns: ["paid_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_paid_to_fkey"
+            columns: ["paid_to"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "payments_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_verified_by_fkey"
+            columns: ["verified_by"]
             isOneToOne: false
             referencedRelation: "user_analytics"
             referencedColumns: ["user_id"]
@@ -333,6 +440,59 @@ export type Database = {
           {
             foreignKeyName: "reviews_reviewer_id_fkey"
             columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      staff_accounts: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_accounts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_accounts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "staff_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_accounts_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_analytics"
             referencedColumns: ["user_id"]
