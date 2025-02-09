@@ -24,6 +24,7 @@ import CalendarConnected from "./pages/CalendarConnected";
 import TermsOfService from "./pages/TermsOfService";
 import Messaging from "./pages/Messaging";
 import FeedbackForm from "./pages/reviews/FeedbackForm";
+import Analytics from "./pages/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/messaging" element={<Messaging />} />
             <Route path="/feedback/:appointmentId" element={<FeedbackForm />} />
+            <Route path="/analytics" element={<Analytics />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
