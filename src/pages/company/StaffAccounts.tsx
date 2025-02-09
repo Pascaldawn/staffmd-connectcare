@@ -14,6 +14,19 @@ import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
+type StaffProfile = {
+  first_name: string | null;
+  last_name: string | null;
+  id: string;
+};
+
+type StaffAccount = {
+  id: string;
+  company_id: string;
+  user_id: string;
+  staff: StaffProfile;
+};
+
 const StaffAccounts = () => {
   const [newStaffEmail, setNewStaffEmail] = useState("");
   const { toast } = useToast();
@@ -34,7 +47,7 @@ const StaffAccounts = () => {
         .eq('company_id', user.user.id);
 
       if (error) throw error;
-      return data;
+      return data as StaffAccount[];
     }
   });
 
