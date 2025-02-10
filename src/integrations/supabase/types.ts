@@ -121,6 +121,108 @@ export type Database = {
           },
         ]
       }
+      company_profiles: {
+        Row: {
+          company_name: string
+          company_size: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          industry: string | null
+          location: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_name: string
+          company_size?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id: string
+          industry?: string | null
+          location?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string
+          company_size?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          location?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      healthcare_provider_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          license_expiry: string | null
+          license_number: string | null
+          practice_name: string | null
+          qualifications: string[] | null
+          specialties: string[] | null
+          updated_at: string
+          verification_status: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          license_expiry?: string | null
+          license_number?: string | null
+          practice_name?: string | null
+          qualifications?: string[] | null
+          specialties?: string[] | null
+          updated_at?: string
+          verification_status?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          license_expiry?: string | null
+          license_number?: string | null
+          practice_name?: string | null
+          qualifications?: string[] | null
+          specialties?: string[] | null
+          updated_at?: string
+          verification_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "healthcare_provider_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "healthcare_provider_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -298,6 +400,7 @@ export type Database = {
           reminder_settings: Json | null
           total_reviews: number | null
           updated_at: string
+          user_type: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -312,6 +415,7 @@ export type Database = {
           reminder_settings?: Json | null
           total_reviews?: number | null
           updated_at?: string
+          user_type?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -326,6 +430,7 @@ export type Database = {
           reminder_settings?: Json | null
           total_reviews?: number | null
           updated_at?: string
+          user_type?: string | null
         }
         Relationships: []
       }

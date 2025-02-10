@@ -1,4 +1,3 @@
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,6 +8,8 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
 
 // Industry options
 const industries = [
@@ -90,6 +91,8 @@ export default function CompanyRegistration() {
   const [basicInfo, setBasicInfo] = useState<z.infer<typeof basicInfoSchema> | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   
   const basicForm = useForm<z.infer<typeof basicInfoSchema>>({
     resolver: zodResolver(basicInfoSchema),
@@ -118,17 +121,49 @@ export default function CompanyRegistration() {
 
   const onSubmitDetails = async (values: z.infer<typeof companyDetailsSchema>) => {
     const completeData = { ...basicInfo, ...values };
-    console.log("Form submitted:", completeData);
     
-    // Show success notification
-    toast({
-      title: "Registration Successful",
-      description: `A confirmation email has been sent to ${basicInfo?.email}`,
-    });
+    try {
+      // First update the user type in profiles
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ 
+          user_type: 'company',
+          first_name: basicInfo?.contactPerson.split(' ')[0],
+          last_name: basicInfo?.contactPerson.split(' ').slice(1).join(' ')
+        })
+        .eq('id', user?.id);
 
-    // TODO: Integrate with backend to:
-    // 1. Save company data
-    // 2. Send confirmation email
+      if (profileError) throw profileError;
+
+      // Then create the company profile
+      const { error: companyError } = await supabase
+        .from('company_profiles')
+        .insert({
+          id: user?.id,
+          company_name: basicInfo?.companyName,
+          industry: values.industry,
+          company_size: values.size,
+          location: `${values.region}, ${values.country}`,
+          contact_email: basicInfo?.email,
+          contact_phone: basicInfo?.phone
+        });
+
+      if (companyError) throw companyError;
+
+      toast({
+        title: "Registration Successful",
+        description: `Welcome to StaffMD! Your company profile has been created.`,
+      });
+
+      navigate('/dashboard/company');
+    } catch (error) {
+      console.error('Error during registration:', error);
+      toast({
+        variant: "destructive",
+        title: "Registration failed",
+        description: "There was a problem creating your profile. Please try again.",
+      });
+    }
   };
 
   return (

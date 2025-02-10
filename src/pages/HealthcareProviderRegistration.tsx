@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Stethoscope, Mail, Phone, User, Building2, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/AuthProvider";
 
 const providerFormSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -21,6 +23,7 @@ const providerFormSchema = z.object({
 export default function HealthcareProviderRegistration() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const form = useForm<z.infer<typeof providerFormSchema>>({
     resolver: zodResolver(providerFormSchema),
@@ -34,13 +37,47 @@ export default function HealthcareProviderRegistration() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof providerFormSchema>) => {
-    console.log("Form submitted:", values);
-    toast({
-      title: "Registration successful",
-      description: "Please proceed to verify your medical credentials.",
-    });
-    navigate("/profile/verify");
+  const onSubmit = async (values: z.infer<typeof providerFormSchema>) => {
+    try {
+      // First update the user type in profiles
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ 
+          user_type: 'provider',
+          first_name: values.fullName.split(' ')[0],
+          last_name: values.fullName.split(' ').slice(1).join(' ')
+        })
+        .eq('id', user?.id);
+
+      if (profileError) throw profileError;
+
+      // Then create the healthcare provider profile
+      const { error: providerError } = await supabase
+        .from('healthcare_provider_profiles')
+        .insert({
+          id: user?.id,
+          specialties: [values.specialization],
+          license_number: values.licenseNumber,
+          practice_name: values.practice,
+          verification_status: 'pending'
+        });
+
+      if (providerError) throw providerError;
+
+      toast({
+        title: "Registration successful",
+        description: "Please proceed to verify your medical credentials.",
+      });
+      
+      navigate("/profile/verify");
+    } catch (error) {
+      console.error('Error during registration:', error);
+      toast({
+        variant: "destructive",
+        title: "Registration failed",
+        description: "There was a problem creating your profile. Please try again.",
+      });
+    }
   };
 
   return (
