@@ -28,6 +28,9 @@ import Analytics from "./pages/Analytics";
 import PaymentHistory from "./pages/payments/PaymentHistory";
 import StaffAccounts from "./pages/company/StaffAccounts";
 import ProcessPayment from "./pages/payments/ProcessPayment";
+import Settings from "./pages/settings/Settings";
+import LanguageSettings from "./pages/settings/LanguageSettings";
+import AccessibilitySettings from "./pages/settings/AccessibilitySettings";
 
 const queryClient = new QueryClient();
 
@@ -58,10 +61,13 @@ const App = () => (
             <Route path="/messaging" element={<Messaging />} />
             <Route path="/feedback/:appointmentId" element={<FeedbackForm />} />
             <Route path="/analytics" element={<Analytics />} />
-            {/* New payment and staff-related routes */}
             <Route path="/payments/history" element={<PaymentHistory />} />
             <Route path="/company/staff" element={<StaffAccounts />} />
             <Route path="/payments/process/:appointmentId" element={<ProcessPayment />} />
+            {/* New Settings Routes */}
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/settings/language" element={<LanguageSettings />} />
+            <Route path="/settings/accessibility" element={<AccessibilitySettings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </TooltipProvider>
