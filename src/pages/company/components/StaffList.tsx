@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -17,11 +16,16 @@ type StaffProfile = {
   id: string;
 };
 
+type SelectQueryError = {
+  error: true;
+  message: string;
+};
+
 type StaffAccount = {
   id: string;
   company_id: string;
   user_id: string;
-  staff: StaffProfile;
+  staff: StaffProfile | SelectQueryError;
 };
 
 const StaffList = () => {
@@ -29,13 +33,13 @@ const StaffList = () => {
   const queryClient = useQueryClient();
 
   const { data: staffAccounts, isLoading } = useQuery({
-    queryKey: ['staff-accounts'],
+    queryKey: ["staff_accounts"],
     queryFn: async () => {
       const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('Not authenticated');
+      if (!user.user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
-        .from('staff_accounts')
+        .from("staff_accounts")
         .select(`
           id,
           company_id,
@@ -46,24 +50,29 @@ const StaffList = () => {
             id
           )
         `)
-        .eq('company_id', user.user.id);
+        .eq("company_id", user.user.id);
 
       if (error) throw error;
-      return (data || []) as StaffAccount[];
-    }
+
+      // Filter out accounts with invalid or errored staff data
+      const filteredData = (data || []).filter((account: any) => {
+        return !("error" in account.staff);
+      });
+
+      return filteredData as StaffAccount[];
+    },
   });
 
   const removeStaffMutation = useMutation({
     mutationFn: async (staffId: string) => {
       const { error } = await supabase
-        .from('staff_accounts')
+        .from("staff_accounts")
         .delete()
-        .eq('id', staffId);
-
+        .eq("id", staffId);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['staff-accounts'] });
+      queryClient.invalidateQueries({ queryKey: ["staff-accounts"] });
       toast({
         title: "Staff member removed successfully",
       });
@@ -74,7 +83,7 @@ const StaffList = () => {
         description: error.message,
         variant: "destructive",
       });
-    }
+    },
   });
 
   return (
@@ -93,9 +102,14 @@ const StaffList = () => {
                 className="flex items-center justify-between p-4 border rounded-lg"
               >
                 <div>
-                  <h3 className="font-medium">
-                    {account.staff.first_name} {account.staff.last_name}
-                  </h3>
+                  {("error" in account.staff) ? (
+                    <p className="text-red-500">Error loading staff details</p>
+                  ) : (
+                    <h3 className="font-medium">
+                      {account.staff.first_name || "Unknown"}{" "}
+                      {account.staff.last_name || "Unknown"}
+                    </h3>
+                  )}
                 </div>
                 <Button
                   variant="destructive"
