@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "./use-toast";
@@ -20,48 +19,74 @@ export function useCompanyRegistration() {
   };
 
   const handleCompanyDetailsSubmit = async (values: CompanyDetails) => {
-    if (!basicInfo) return;
-    
+    if (!user || !user.id) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "User information is missing. Please log in again.",
+      });
+      return;
+    }
+
+    if (!basicInfo) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please complete the basic information step first.",
+      });
+      return;
+    }
+
     try {
-      // First update the user type in profiles
+      // Update the user type in profiles
+      const firstName = basicInfo.contactPerson.split(" ")[0] || "";
+      const lastName = basicInfo.contactPerson.split(" ").slice(1).join(" ") || "";
+
       const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ 
-          user_type: 'company',
-          first_name: basicInfo.contactPerson.split(' ')[0],
-          last_name: basicInfo.contactPerson.split(' ').slice(1).join(' ')
+        .from("profiles")
+        .update({
+          user_type: "company",
+          first_name: firstName,
+          last_name: lastName,
         })
-        .eq('id', user?.id);
+        .eq("id", user.id);
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Error updating profile:", profileError.message);
+        throw new Error("Failed to update user profile.");
+      }
 
-      // Then create the company profile
+      // Create the company profile
       const { error: companyError } = await supabase
-        .from('company_profiles')
+        .from("company_profiles")
         .insert({
-          id: user?.id,
+          id: user.id,
           company_name: basicInfo.companyName,
           industry: values.industry,
           company_size: values.size,
-          location: `${values.region}, ${values.country}`,
+          location: `${values.region}, ${selectedCountry}`,
           contact_email: basicInfo.email,
-          contact_phone: basicInfo.phone
+          contact_phone: basicInfo.phone,
         });
 
-      if (companyError) throw companyError;
+      if (companyError) {
+        console.error("Error creating company profile:", companyError.message);
+        throw new Error("Failed to create company profile.");
+      }
 
+      // Success message and navigation
       toast({
         title: "Registration Successful",
         description: "Welcome to StaffMD! Your company profile has been created.",
       });
-
-      navigate('/dashboard/company');
-    } catch (error) {
-      console.error('Error during registration:', error);
+      navigate("/dashboard/company");
+    } catch (error: any) {
+      console.error("Error during registration:", error.message);
       toast({
         variant: "destructive",
-        title: "Registration failed",
-        description: "There was a problem creating your profile. Please try again.",
+        title: "Registration Failed",
+        description:
+          error.message || "There was a problem creating your profile. Please try again.",
       });
     }
   };
