@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -13,8 +12,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 
@@ -22,6 +28,7 @@ const ProcessPayment = () => {
   const { appointmentId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [paymentMethod, setPaymentMethod] = useState<'bank_transfer' | 'flutterwave' | 'paystack'>('bank_transfer');
   const [bankReference, setBankReference] = useState("");
   const [notes, setNotes] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -43,6 +50,23 @@ const ProcessPayment = () => {
     }
   });
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+      return { user, profile };
+    }
+  });
+
   const processPaperwork = async () => {
     if (!file || !appointment) return null;
     
@@ -61,39 +85,56 @@ const ProcessPayment = () => {
 
   const processPaymentMutation = useMutation({
     mutationFn: async () => {
-      if (!appointment) throw new Error('No appointment data');
+      if (!appointment || !currentUser?.profile) throw new Error('No appointment or user data');
 
-      const proofUrl = file ? await processPaperwork() : null;
+      if (paymentMethod === 'bank_transfer') {
+        const proofUrl = file ? await processPaperwork() : null;
 
-      const { error: paymentError } = await supabase
-        .from('payments')
-        .insert({
-          appointment_id: appointmentId,
-          amount: 100, // Replace with actual amount
-          status: 'pending',
-          payment_method: 'bank_transfer',
-          bank_transfer_reference: bankReference,
-          paid_by: (await supabase.auth.getUser()).data.user?.id,
-          paid_to: appointment.provider_id,
-          payment_proof_url: proofUrl,
-          notes: notes
+        const { error: paymentError } = await supabase
+          .from('payments')
+          .insert({
+            appointment_id: appointmentId,
+            amount: 100, // Replace with actual amount
+            status: 'pending',
+            payment_method: 'bank_transfer',
+            bank_transfer_reference: bankReference,
+            paid_by: (await supabase.auth.getUser()).data.user?.id,
+            paid_to: appointment.provider_id,
+            payment_proof_url: proofUrl,
+            notes: notes
+          });
+
+        if (paymentError) throw paymentError;
+
+        const { error: appointmentError } = await supabase
+          .from('appointments')
+          .update({ payment_status: 'pending_verification' })
+          .eq('id', appointmentId);
+
+        if (appointmentError) throw appointmentError;
+      } else {
+        const paymentEndpoint = paymentMethod === 'flutterwave' 
+          ? 'flutterwave-payment'
+          : 'paystack-payment';
+
+        const response = await supabase.functions.invoke(paymentEndpoint, {
+          body: {
+            amount: 100, // Replace with actual amount
+            email: currentUser.user.email,
+            name: `${currentUser.profile.first_name} ${currentUser.profile.last_name}`,
+            appointmentId,
+          },
         });
 
-      if (paymentError) throw paymentError;
+        if (response.error) throw response.error;
 
-      const { error: appointmentError } = await supabase
-        .from('appointments')
-        .update({ payment_status: 'pending_verification' })
-        .eq('id', appointmentId);
-
-      if (appointmentError) throw appointmentError;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Payment submitted successfully",
-        description: "Your payment is being processed.",
-      });
-      navigate('/payments/history');
+        // Redirect to payment gateway
+        if (paymentMethod === 'flutterwave' && response.data.data.link) {
+          window.location.href = response.data.data.link;
+        } else if (paymentMethod === 'paystack' && response.data.data.authorization_url) {
+          window.location.href = response.data.data.authorization_url;
+        }
+      }
     },
     onError: (error) => {
       toast({
@@ -123,11 +164,11 @@ const ProcessPayment = () => {
       <div className="grid gap-6 max-w-xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>Appointment Details</CardTitle>
+            <CardTitle>Payment Details</CardTitle>
             <CardDescription>
               {appointment?.start_time && (
                 <>
-                  Scheduled for {format(new Date(appointment.start_time), 'MMMM d, yyyy h:mm a')}
+                  Appointment scheduled for {format(new Date(appointment.start_time), 'MMMM d, yyyy h:mm a')}
                   <br />
                   with Dr. {appointment?.provider.first_name} {appointment?.provider.last_name}
                 </>
@@ -138,44 +179,67 @@ const ProcessPayment = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Bank Transfer Reference
+                  Payment Method
                 </label>
-                <Input
-                  value={bankReference}
-                  onChange={(e) => setBankReference(e.target.value)}
-                  placeholder="Enter bank transfer reference"
-                />
+                <Select 
+                  value={paymentMethod}
+                  onValueChange={(value: 'bank_transfer' | 'flutterwave' | 'paystack') => setPaymentMethod(value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select payment method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="flutterwave">Flutterwave</SelectItem>
+                    <SelectItem value="paystack">Paystack</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Upload Payment Proof
-                </label>
-                <Input
-                  type="file"
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  accept="image/*,.pdf"
-                />
-              </div>
+              {paymentMethod === 'bank_transfer' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Bank Transfer Reference
+                    </label>
+                    <Input
+                      value={bankReference}
+                      onChange={(e) => setBankReference(e.target.value)}
+                      placeholder="Enter bank transfer reference"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Additional Notes
-                </label>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Any additional information about the payment"
-                />
-              </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Upload Payment Proof
+                    </label>
+                    <Input
+                      type="file"
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                      accept="image/*,.pdf"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Additional Notes
+                    </label>
+                    <Textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Any additional information about the payment"
+                    />
+                  </div>
+                </>
+              )}
 
               <Button
                 className="w-full"
                 onClick={() => processPaymentMutation.mutate()}
-                disabled={!bankReference || !file}
+                disabled={paymentMethod === 'bank_transfer' && (!bankReference || !file)}
               >
-                <Upload className="h-4 w-4 mr-2" />
-                Submit Payment
+                <CreditCard className="h-4 w-4 mr-2" />
+                {paymentMethod === 'bank_transfer' ? 'Submit Payment Proof' : 'Proceed to Payment'}
               </Button>
             </div>
           </CardContent>

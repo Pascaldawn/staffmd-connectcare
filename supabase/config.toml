@@ -1,8 +1,8 @@
 
 project_id = "pzlkzzivojcrfooelyky"
 
-[functions.google-calendar]
+[functions.flutterwave-payment]
 verify_jwt = true
 
-[functions.google-calendar-callback]
-verify_jwt = false
+[functions.paystack-payment]
+verify_jwt = true
