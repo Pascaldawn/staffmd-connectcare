@@ -10,6 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Role } from "@/hooks/use-permissions";
 
 type StaffProfile = {
   first_name: string | null;
@@ -21,6 +23,7 @@ type StaffAccount = {
   id: string;
   company_id: string;
   user_id: string;
+  role: Role;
   staff: StaffProfile;
 };
 
@@ -29,7 +32,7 @@ const StaffList = () => {
   const queryClient = useQueryClient();
 
   const { data: staffAccounts, isLoading } = useQuery({
-    queryKey: ["staff_accounts"],
+    queryKey: ["staff-accounts"],
     queryFn: async () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
@@ -40,7 +43,8 @@ const StaffList = () => {
           id,
           company_id,
           user_id,
-          staff:user_id (
+          role,
+          staff:profiles!user_id (
             first_name,
             last_name,
             id
@@ -49,7 +53,7 @@ const StaffList = () => {
         .eq("company_id", user.user.id);
 
       if (error) throw error;
-      return (data || []) as StaffAccount[];
+      return data as StaffAccount[];
     },
   });
 
@@ -76,6 +80,19 @@ const StaffList = () => {
     },
   });
 
+  const getRoleBadgeColor = (role: Role) => {
+    switch (role) {
+      case "admin":
+        return "bg-red-500";
+      case "manager":
+        return "bg-blue-500";
+      case "worker":
+        return "bg-green-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -91,11 +108,14 @@ const StaffList = () => {
                 key={account.id}
                 className="flex items-center justify-between p-4 border rounded-lg"
               >
-                <div>
+                <div className="space-y-1">
                   <h3 className="font-medium">
                     {account.staff.first_name || "Unknown"}{" "}
                     {account.staff.last_name || "Unknown"}
                   </h3>
+                  <Badge className={getRoleBadgeColor(account.role)}>
+                    {account.role}
+                  </Badge>
                 </div>
                 <Button
                   variant="destructive"

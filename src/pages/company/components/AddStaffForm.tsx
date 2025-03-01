@@ -10,16 +10,25 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Role } from "@/hooks/use-permissions";
 
 const AddStaffForm = () => {
   const [newStaffEmail, setNewStaffEmail] = useState<string>("");
+  const [selectedRole, setSelectedRole] = useState<Role>("worker");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const addStaffMutation = useMutation({
-    mutationFn: async (email: string) => {
+    mutationFn: async ({ email, role }: { email: string; role: Role }) => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
@@ -38,6 +47,7 @@ const AddStaffForm = () => {
         .insert({
           company_id: user.user.id,
           user_id: profile.id,
+          role: selectedRole
         });
 
       if (error) throw error;
@@ -48,6 +58,7 @@ const AddStaffForm = () => {
         title: "Staff member added successfully",
       });
       setNewStaffEmail("");
+      setSelectedRole("worker");
     },
     onError: (error: Error) => {
       toast({
@@ -79,7 +90,7 @@ const AddStaffForm = () => {
       return;
     }
 
-    addStaffMutation.mutate(newStaffEmail);
+    addStaffMutation.mutate({ email: newStaffEmail, role: selectedRole });
   };
 
   return (
@@ -88,14 +99,29 @@ const AddStaffForm = () => {
         <CardTitle>Add New Staff Member</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleAddStaff} className="flex gap-4">
-          <Input
-            type="email"
-            placeholder="Enter staff member's email"
-            value={newStaffEmail}
-            onChange={(e) => setNewStaffEmail(e.target.value)}
-            className="flex-1"
-          />
+        <form onSubmit={handleAddStaff} className="space-y-4">
+          <div className="flex gap-4">
+            <Input
+              type="email"
+              placeholder="Enter staff member's email"
+              value={newStaffEmail}
+              onChange={(e) => setNewStaffEmail(e.target.value)}
+              className="flex-1"
+            />
+            <Select
+              value={selectedRole}
+              onValueChange={(value) => setSelectedRole(value as Role)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="manager">Manager</SelectItem>
+                <SelectItem value="worker">Worker</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button type="submit" disabled={!newStaffEmail.trim()}>
             <Plus className="h-4 w-4 mr-2" />
             Add Staff
