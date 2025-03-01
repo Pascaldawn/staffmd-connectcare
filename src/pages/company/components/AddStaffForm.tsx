@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,20 +14,18 @@ import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const AddStaffForm = () => {
-  const [newStaffEmail, setNewStaffEmail] = useState<string>(""); // State to store the email input
+  const [newStaffEmail, setNewStaffEmail] = useState<string>("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const addStaffMutation = useMutation({
-    mutationFn: async (email: string): Promise<void> => {
-      // Fetch the authenticated user
+    mutationFn: async (email: string) => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
-      // Check if the provided email exists in the profiles table
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("id") // Select only the required field
+        .select("id")
         .eq("email", email)
         .single();
 
@@ -34,7 +33,6 @@ const AddStaffForm = () => {
         throw new Error("User not found");
       }
 
-      // Insert the staff account with the user's ID and company ID
       const { error } = await supabase
         .from("staff_accounts")
         .insert({
@@ -45,15 +43,13 @@ const AddStaffForm = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      // Invalidate the staff accounts query to refetch updated data
       queryClient.invalidateQueries({ queryKey: ["staff-accounts"] });
       toast({
         title: "Staff member added successfully",
       });
-      setNewStaffEmail(""); // Clear the input field after successful addition
+      setNewStaffEmail("");
     },
-    onError: (error: any) => {
-      // Show an error toast with the specific error message
+    onError: (error: Error) => {
       toast({
         title: "Error adding staff member",
         description: error.message || "An unexpected error occurred.",
@@ -63,9 +59,8 @@ const AddStaffForm = () => {
   });
 
   const handleAddStaff = (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent the default form submission behavior
+    e.preventDefault();
 
-    // Validate the email input
     if (!newStaffEmail.trim()) {
       toast({
         title: "Email is required",
@@ -84,7 +79,6 @@ const AddStaffForm = () => {
       return;
     }
 
-    // Trigger the mutation with the validated email
     addStaffMutation.mutate(newStaffEmail);
   };
 
@@ -99,11 +93,10 @@ const AddStaffForm = () => {
             type="email"
             placeholder="Enter staff member's email"
             value={newStaffEmail}
-            onChange={(e) => setNewStaffEmail(e.target.value)} // Update the state on input change
+            onChange={(e) => setNewStaffEmail(e.target.value)}
             className="flex-1"
           />
           <Button type="submit" disabled={!newStaffEmail.trim()}>
-            {/* Disable the button if the email input is empty */}
             <Plus className="h-4 w-4 mr-2" />
             Add Staff
           </Button>

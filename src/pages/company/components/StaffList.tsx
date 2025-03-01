@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -16,16 +17,11 @@ type StaffProfile = {
   id: string;
 };
 
-type SelectQueryError = {
-  error: true;
-  message: string;
-};
-
 type StaffAccount = {
   id: string;
   company_id: string;
   user_id: string;
-  staff: StaffProfile | SelectQueryError;
+  staff: StaffProfile;
 };
 
 const StaffList = () => {
@@ -44,7 +40,7 @@ const StaffList = () => {
           id,
           company_id,
           user_id,
-          staff:profiles (
+          staff:user_id (
             first_name,
             last_name,
             id
@@ -53,13 +49,7 @@ const StaffList = () => {
         .eq("company_id", user.user.id);
 
       if (error) throw error;
-
-      // Filter out accounts with invalid or errored staff data
-      const filteredData = (data || []).filter((account: any) => {
-        return !("error" in account.staff);
-      });
-
-      return filteredData as StaffAccount[];
+      return (data || []) as StaffAccount[];
     },
   });
 
@@ -102,14 +92,10 @@ const StaffList = () => {
                 className="flex items-center justify-between p-4 border rounded-lg"
               >
                 <div>
-                  {("error" in account.staff) ? (
-                    <p className="text-red-500">Error loading staff details</p>
-                  ) : (
-                    <h3 className="font-medium">
-                      {account.staff.first_name || "Unknown"}{" "}
-                      {account.staff.last_name || "Unknown"}
-                    </h3>
-                  )}
+                  <h3 className="font-medium">
+                    {account.staff.first_name || "Unknown"}{" "}
+                    {account.staff.last_name || "Unknown"}
+                  </h3>
                 </div>
                 <Button
                   variant="destructive"
