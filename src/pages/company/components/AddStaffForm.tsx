@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,7 +46,7 @@ const AddStaffForm = () => {
         .insert({
           company_id: user.user.id,
           user_id: profile.id,
-          role: role
+          role: selectedRole
         });
 
       if (error) throw error;
