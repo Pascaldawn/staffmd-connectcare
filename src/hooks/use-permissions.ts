@@ -17,19 +17,18 @@ export const usePermissions = (role?: Role) => {
       if (!role) return [];
       
       const { data, error } = await supabase
-        .from('role_permissions')
+        .from('permissions')
         .select(`
-          permission:permissions (
-            id,
-            name,
-            description
-          )
+          id,
+          name,
+          description,
+          role_permissions!inner(role)
         `)
-        .eq('role', role);
+        .eq('role_permissions.role', role);
 
       if (error) throw error;
       
-      return data?.map(d => d.permission) as Permission[] || [];
+      return (data || []) as Permission[];
     },
     enabled: !!role
   });

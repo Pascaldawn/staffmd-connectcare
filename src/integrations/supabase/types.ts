@@ -469,6 +469,27 @@ export type Database = {
           },
         ]
       }
+      permissions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -634,11 +655,41 @@ export type Database = {
           },
         ]
       }
+      role_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          permission_id: string | null
+          role: Database["public"]["Enums"]["company_role"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permission_id?: string | null
+          role: Database["public"]["Enums"]["company_role"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permission_id?: string | null
+          role?: Database["public"]["Enums"]["company_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_accounts: {
         Row: {
           company_id: string | null
           created_at: string
           id: string
+          role: Database["public"]["Enums"]["company_role"]
           updated_at: string
           user_id: string | null
         }
@@ -646,6 +697,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           id?: string
+          role?: Database["public"]["Enums"]["company_role"]
           updated_at?: string
           user_id?: string | null
         }
@@ -653,6 +705,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           id?: string
+          role?: Database["public"]["Enums"]["company_role"]
           updated_at?: string
           user_id?: string | null
         }
@@ -797,7 +850,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      company_role: "admin" | "manager" | "worker"
     }
     CompositeTypes: {
       [_ in never]: never

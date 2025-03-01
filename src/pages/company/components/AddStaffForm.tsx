@@ -47,7 +47,7 @@ const AddStaffForm = () => {
         .insert({
           company_id: user.user.id,
           user_id: profile.id,
-          role: selectedRole
+          role: role
         });
 
       if (error) throw error;
