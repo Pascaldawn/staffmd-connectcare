@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,16 +19,18 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Role } from "@/hooks/use-permissions";
+import type { Database } from "@/integrations/supabase/types";
+
+type CompanyRole = Database["public"]["Enums"]["company_role"];
 
 const AddStaffForm = () => {
   const [newStaffEmail, setNewStaffEmail] = useState<string>("");
-  const [selectedRole, setSelectedRole] = useState<Role>("worker");
+  const [selectedRole, setSelectedRole] = useState<CompanyRole>("worker");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const addStaffMutation = useMutation({
-    mutationFn: async ({ email, role }: { email: string; role: Role }) => {
+    mutationFn: async ({ email, role }: { email: string; role: CompanyRole }) => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
@@ -46,7 +49,7 @@ const AddStaffForm = () => {
         .insert({
           company_id: user.user.id,
           user_id: profile.id,
-          role: selectedRole
+          role: role
         });
 
       if (error) throw error;
@@ -109,7 +112,7 @@ const AddStaffForm = () => {
             />
             <Select
               value={selectedRole}
-              onValueChange={(value) => setSelectedRole(value as Role)}
+              onValueChange={(value: CompanyRole) => setSelectedRole(value)}
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select role" />
