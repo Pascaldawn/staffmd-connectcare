@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "./use-toast";
@@ -38,16 +39,13 @@ export function useCompanyRegistration() {
     }
 
     try {
-      // Update the user type in profiles
-      const firstName = basicInfo.contactPerson.split(" ")[0] || "";
-      const lastName = basicInfo.contactPerson.split(" ").slice(1).join(" ") || "";
-
+      // Update the user type and profile information in profiles
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
           user_type: "company",
-          first_name: firstName,
-          last_name: lastName,
+          first_name: basicInfo.contactPerson.split(" ")[0] || "",
+          last_name: basicInfo.contactPerson.split(" ").slice(1).join(" ") || "",
         })
         .eq("id", user.id);
 
@@ -56,10 +54,10 @@ export function useCompanyRegistration() {
         throw new Error("Failed to update user profile.");
       }
 
-      // Create the company profile
+      // Create or update the company profile
       const { error: companyError } = await supabase
         .from("company_profiles")
-        .insert({
+        .upsert({
           id: user.id,
           company_name: basicInfo.companyName,
           industry: values.industry,
