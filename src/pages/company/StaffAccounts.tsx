@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import AddStaffForm from "./components/AddStaffForm";
+import { AddStaffForm } from "./components/AddStaffForm";
 import StaffList from "./components/StaffList";
 
 const StaffAccounts = () => {
