@@ -1,4 +1,3 @@
-
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -21,11 +20,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Improved validation schema with .nonempty()
 const staffFormSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  role: z.enum(["admin", "worker"]),
+  email: z.string().email("Invalid email address").nonempty("Email is required"),
+  firstName: z.string().min(2, "First name must be at least 2 characters").nonempty("First name is required"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters").nonempty("Last name is required"),
+  role: z.enum(["admin", "worker"]).nonempty("Role is required"),
 });
 
 type StaffFormValues = z.infer<typeof staffFormSchema>;
@@ -49,6 +49,7 @@ export function AddStaffForm({ onSubmit, isLoading = false }: AddStaffFormProps)
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Email Field */}
         <FormField
           control={form.control}
           name="email"
@@ -63,6 +64,7 @@ export function AddStaffForm({ onSubmit, isLoading = false }: AddStaffFormProps)
           )}
         />
 
+        {/* First Name Field */}
         <FormField
           control={form.control}
           name="firstName"
@@ -77,6 +79,7 @@ export function AddStaffForm({ onSubmit, isLoading = false }: AddStaffFormProps)
           )}
         />
 
+        {/* Last Name Field */}
         <FormField
           control={form.control}
           name="lastName"
@@ -91,6 +94,7 @@ export function AddStaffForm({ onSubmit, isLoading = false }: AddStaffFormProps)
           )}
         />
 
+        {/* Role Field */}
         <FormField
           control={form.control}
           name="role"
@@ -113,6 +117,7 @@ export function AddStaffForm({ onSubmit, isLoading = false }: AddStaffFormProps)
           )}
         />
 
+        {/* Submit Button */}
         <Button type="submit" disabled={isLoading}>
           {isLoading ? "Adding..." : "Add Staff Member"}
         </Button>
