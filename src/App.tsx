@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/AuthProvider";
 import Index from "./pages/Index";
+import Login from "./pages/auth/Login";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CompanyRegistration from "./pages/CompanyRegistration";
@@ -43,6 +43,7 @@ const App = () => (
           <Sonner />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/register" element={<RegisterChoice />} />
             <Route path="/register/company" element={<CompanyRegistration />} />
@@ -64,7 +65,6 @@ const App = () => (
             <Route path="/payments/history" element={<PaymentHistory />} />
             <Route path="/company/staff" element={<StaffAccounts />} />
             <Route path="/payments/process/:appointmentId" element={<ProcessPayment />} />
-            {/* New Settings Routes */}
             <Route path="/settings" element={<Settings />} />
             <Route path="/settings/language" element={<LanguageSettings />} />
             <Route path="/settings/accessibility" element={<AccessibilitySettings />} />

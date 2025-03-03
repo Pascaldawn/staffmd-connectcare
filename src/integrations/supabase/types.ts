@@ -658,6 +658,7 @@ export type Database = {
     }
     Enums: {
       company_role: "admin" | "manager" | "worker"
+      user_role: "admin" | "staff" | "provider" | "company"
     }
     CompositeTypes: {
       [_ in never]: never
