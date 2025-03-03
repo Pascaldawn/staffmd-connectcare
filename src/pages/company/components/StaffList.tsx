@@ -8,65 +8,62 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Trash2, UserCog } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Role } from "@/hooks/use-permissions";
 
 type StaffProfile = {
+  id: string;
+  email: string;
   first_name: string | null;
   last_name: string | null;
-  id: string;
-};
-
-type StaffAccount = {
-  id: string;
-  company_id: string;
-  user_id: string;
-  role: Role;
-  staff: StaffProfile;
+  role: string;
+  user_type: string;
 };
 
 const StaffList = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: staffAccounts, isLoading } = useQuery({
-    queryKey: ["staff-accounts"],
+  const { data: staffMembers, isLoading } = useQuery({
+    queryKey: ["staff-members"],
     queryFn: async () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
+      // Get the company profile ID first
+      const { data: companyProfile } = await supabase
+        .from("company_profiles")
+        .select("id")
+        .eq("id", user.user.id)
+        .single();
+
+      if (!companyProfile) throw new Error("Company profile not found");
+
+      // Then get all staff members associated with this company
       const { data, error } = await supabase
-        .from("staff_accounts")
-        .select(`
-          id,
-          company_id,
-          user_id,
-          role,
-          staff:profiles!user_id (
-            first_name,
-            last_name,
-            id
-          )
-        `)
-        .eq("company_id", user.user.id);
+        .from("profiles")
+        .select("*")
+        .eq("company_id", companyProfile.id)
+        .eq("user_type", "staff");
 
       if (error) throw error;
-      return data as StaffAccount[];
+      return data as StaffProfile[];
     },
   });
 
   const removeStaffMutation = useMutation({
     mutationFn: async (staffId: string) => {
+      // We only update the company_id to null to revoke access
       const { error } = await supabase
-        .from("staff_accounts")
-        .delete()
+        .from("profiles")
+        .update({ company_id: null })
         .eq("id", staffId);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["staff-accounts"] });
+      queryClient.invalidateQueries({ queryKey: ["staff-members"] });
       toast({
         title: "Staff member removed successfully",
       });
@@ -80,19 +77,6 @@ const StaffList = () => {
     },
   });
 
-  const getRoleBadgeColor = (role: Role) => {
-    switch (role) {
-      case "admin":
-        return "bg-red-500";
-      case "manager":
-        return "bg-blue-500";
-      case "worker":
-        return "bg-green-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -103,30 +87,31 @@ const StaffList = () => {
           <div className="text-center py-4">Loading...</div>
         ) : (
           <div className="space-y-4">
-            {staffAccounts?.map((account) => (
+            {staffMembers?.map((staff) => (
               <div
-                key={account.id}
+                key={staff.id}
                 className="flex items-center justify-between p-4 border rounded-lg"
               >
                 <div className="space-y-1">
                   <h3 className="font-medium">
-                    {account.staff.first_name || "Unknown"}{" "}
-                    {account.staff.last_name || "Unknown"}
+                    {staff.first_name || "Unknown"} {staff.last_name || "Unknown"}
                   </h3>
-                  <Badge className={getRoleBadgeColor(account.role)}>
-                    {account.role}
-                  </Badge>
+                  <p className="text-sm text-muted-foreground">{staff.email}</p>
+                  <Badge variant="outline">{staff.role}</Badge>
                 </div>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => removeStaffMutation.mutate(account.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="hover:bg-destructive/10"
+                    onClick={() => removeStaffMutation.mutate(staff.id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               </div>
             ))}
-            {staffAccounts?.length === 0 && (
+            {!staffMembers?.length && (
               <p className="text-center text-muted-foreground">
                 No staff members added yet
               </p>

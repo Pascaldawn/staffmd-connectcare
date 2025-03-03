@@ -90,36 +90,7 @@ export type Database = {
           sync_status?: string | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "appointments_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "appointments_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "appointments_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "appointments_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       company_profiles: {
         Row: {
@@ -163,13 +134,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "company_profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       company_subscriptions: {
@@ -205,13 +169,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "company_subscriptions_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "company_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "company_subscriptions_plan_id_fkey"
             columns: ["plan_id"]
             isOneToOne: false
@@ -245,24 +202,14 @@ export type Database = {
           provider_id?: string | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "consultation_fees_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "healthcare_provider_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       healthcare_provider_profiles: {
         Row: {
           created_at: string
           id: string
-          license_expiry: string | null
           license_number: string | null
           practice_name: string | null
-          qualifications: string[] | null
           specialties: string[] | null
           updated_at: string
           verification_status: string | null
@@ -270,10 +217,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id: string
-          license_expiry?: string | null
           license_number?: string | null
           practice_name?: string | null
-          qualifications?: string[] | null
           specialties?: string[] | null
           updated_at?: string
           verification_status?: string | null
@@ -281,10 +226,8 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
-          license_expiry?: string | null
           license_number?: string | null
           practice_name?: string | null
-          qualifications?: string[] | null
           specialties?: string[] | null
           updated_at?: string
           verification_status?: string | null
@@ -296,13 +239,6 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "healthcare_provider_profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -334,36 +270,7 @@ export type Database = {
           receiver_id?: string | null
           sender_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "messages_receiver_id_fkey"
-            columns: ["receiver_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_receiver_id_fkey"
-            columns: ["receiver_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       payments: {
         Row: {
@@ -425,48 +332,6 @@ export type Database = {
             referencedRelation: "appointments"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "payments_paid_by_fkey"
-            columns: ["paid_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_paid_by_fkey"
-            columns: ["paid_by"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "payments_paid_to_fkey"
-            columns: ["paid_to"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_paid_to_fkey"
-            columns: ["paid_to"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "payments_verified_by_fkey"
-            columns: ["verified_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_verified_by_fkey"
-            columns: ["verified_by"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       permissions: {
@@ -492,51 +357,47 @@ export type Database = {
       }
       profiles: {
         Row: {
-          avatar_url: string | null
-          average_rating: number | null
-          calendar_preferences: Json | null
+          company_id: string | null
+          created_at: string
+          email: string
           first_name: string | null
-          google_calendar_token: Json | null
-          google_refresh_token: string | null
           id: string
-          is_calendar_connected: boolean | null
           last_name: string | null
-          reminder_settings: Json | null
-          total_reviews: number | null
+          role: string | null
           updated_at: string
           user_type: string | null
         }
         Insert: {
-          avatar_url?: string | null
-          average_rating?: number | null
-          calendar_preferences?: Json | null
+          company_id?: string | null
+          created_at?: string
+          email: string
           first_name?: string | null
-          google_calendar_token?: Json | null
-          google_refresh_token?: string | null
           id: string
-          is_calendar_connected?: boolean | null
           last_name?: string | null
-          reminder_settings?: Json | null
-          total_reviews?: number | null
+          role?: string | null
           updated_at?: string
           user_type?: string | null
         }
         Update: {
-          avatar_url?: string | null
-          average_rating?: number | null
-          calendar_preferences?: Json | null
+          company_id?: string | null
+          created_at?: string
+          email?: string
           first_name?: string | null
-          google_calendar_token?: Json | null
-          google_refresh_token?: string | null
           id?: string
-          is_calendar_connected?: boolean | null
           last_name?: string | null
-          reminder_settings?: Json | null
-          total_reviews?: number | null
+          role?: string | null
           updated_at?: string
           user_type?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_company_profiles"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       provider_availability: {
         Row: {
@@ -569,22 +430,7 @@ export type Database = {
           start_time?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "provider_availability_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "provider_availability_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       reviews: {
         Row: {
@@ -624,34 +470,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "appointments"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reviews_reviewee_id_fkey"
-            columns: ["reviewee_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reviews_reviewee_id_fkey"
-            columns: ["reviewee_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "reviews_reviewer_id_fkey"
-            columns: ["reviewer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reviews_reviewer_id_fkey"
-            columns: ["reviewer_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -709,36 +527,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "staff_accounts_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "staff_accounts_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "staff_accounts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "staff_accounts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       subscription_plans: {
         Row: {
@@ -767,6 +556,54 @@ export type Database = {
           name?: string
           price?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          average_rating: number | null
+          calendar_preferences: Json | null
+          email: string
+          first_name: string | null
+          google_calendar_token: string | null
+          id: string
+          is_calendar_connected: boolean
+          last_name: string | null
+          reminder_settings: Json | null
+          role: string | null
+          total_reviews: number | null
+          updated_at: string
+          user_type: string | null
+        }
+        Insert: {
+          average_rating?: number | null
+          calendar_preferences?: Json | null
+          email: string
+          first_name?: string | null
+          google_calendar_token?: string | null
+          id: string
+          is_calendar_connected?: boolean
+          last_name?: string | null
+          reminder_settings?: Json | null
+          role?: string | null
+          total_reviews?: number | null
+          updated_at: string
+          user_type?: string | null
+        }
+        Update: {
+          average_rating?: number | null
+          calendar_preferences?: Json | null
+          email?: string
+          first_name?: string | null
+          google_calendar_token?: string | null
+          id?: string
+          is_calendar_connected?: boolean
+          last_name?: string | null
+          reminder_settings?: Json | null
+          role?: string | null
+          total_reviews?: number | null
+          updated_at?: string
+          user_type?: string | null
         }
         Relationships: []
       }
@@ -801,53 +638,23 @@ export type Database = {
           scheduled_for?: string | null
           status?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "video_calls_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "video_calls_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "video_calls_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "video_calls_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-    }
-    Views: {
-      user_analytics: {
-        Row: {
-          average_rating_received: number | null
-          completed_appointments: number | null
-          pending_appointments: number | null
-          total_appointments: number | null
-          total_reviews_received: number | null
-          user_id: string | null
-        }
         Relationships: []
       }
     }
-    Functions: {
+    Views: {
       [_ in never]: never
+    }
+    Functions: {
+      is_company_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_own_record: {
+        Args: {
+          record_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       company_role: "admin" | "manager" | "worker"

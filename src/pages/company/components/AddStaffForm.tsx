@@ -1,4 +1,4 @@
-import React from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,32 +19,97 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-// Improved validation schema with .nonempty()
 const staffFormSchema = z.object({
   email: z.string().email("Invalid email address").nonempty("Email is required"),
   firstName: z.string().min(2, "First name must be at least 2 characters").nonempty("First name is required"),
   lastName: z.string().min(2, "Last name must be at least 2 characters").nonempty("Last name is required"),
-  role: z.enum(["admin", "worker"]).nonempty("Role is required"),
+  role: z.enum(["admin", "staff"]).default("staff"),
 });
 
 type StaffFormValues = z.infer<typeof staffFormSchema>;
 
-interface AddStaffFormProps {
-  onSubmit: (values: StaffFormValues) => void;
-  isLoading?: boolean;
-}
+export function AddStaffForm() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-export function AddStaffForm({ onSubmit, isLoading = false }: AddStaffFormProps) {
   const form = useForm<StaffFormValues>({
     resolver: zodResolver(staffFormSchema),
     defaultValues: {
       email: "",
       firstName: "",
       lastName: "",
-      role: "worker",
+      role: "staff",
     },
   });
+
+  const addStaffMutation = useMutation({
+    mutationFn: async (values: StaffFormValues) => {
+      const { data: currentUser } = await supabase.auth.getUser();
+      if (!currentUser.user) throw new Error("Not authenticated");
+
+      // Get the company profile
+      const { data: companyProfile } = await supabase
+        .from("company_profiles")
+        .select("id")
+        .eq("id", currentUser.user.id)
+        .single();
+
+      if (!companyProfile) throw new Error("Company profile not found");
+
+      // First create the auth user
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: values.email,
+        password: Math.random().toString(36).slice(-8), // Generate a random password
+        options: {
+          data: {
+            first_name: values.firstName,
+            last_name: values.lastName,
+            is_staff: true,
+          },
+        },
+      });
+
+      if (signUpError) throw signUpError;
+      if (!data.user) throw new Error("Failed to create user");
+
+      // Update the profile with company information
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
+          company_id: companyProfile.id,
+          role: values.role,
+          user_type: "staff",
+        })
+        .eq("id", data.user.id);
+
+      if (updateError) throw updateError;
+
+      return data.user;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["staff-members"] });
+      form.reset();
+      toast({
+        title: "Staff member added successfully",
+        description: "An email has been sent with login instructions.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error adding staff member",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  function onSubmit(values: StaffFormValues) {
+    addStaffMutation.mutate(values);
+  }
 
   return (
     <Form {...form}>
@@ -101,14 +166,14 @@ export function AddStaffForm({ onSubmit, isLoading = false }: AddStaffFormProps)
           render={({ field }) => (
             <FormItem>
               <FormLabel>Role</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="worker">Worker</SelectItem>
+                  <SelectItem value="staff">Staff</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
@@ -117,9 +182,11 @@ export function AddStaffForm({ onSubmit, isLoading = false }: AddStaffFormProps)
           )}
         />
 
-        {/* Submit Button */}
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Adding..." : "Add Staff Member"}
+        <Button 
+          type="submit" 
+          disabled={addStaffMutation.isPending}
+        >
+          {addStaffMutation.isPending ? "Adding..." : "Add Staff Member"}
         </Button>
       </form>
     </Form>
