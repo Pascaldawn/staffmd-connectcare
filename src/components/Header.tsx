@@ -1,4 +1,3 @@
-
 import { Building2, Menu, X, User, Settings } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -55,8 +54,8 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link to="/auth" className="btn-primary">
-                Sign In
+              <Link to="/login" className="btn-primary">
+                Login
               </Link>
             )}
           </nav>
@@ -118,11 +117,11 @@ export function Header() {
                 </>
               ) : (
                 <Link
-                  to="/auth"
+                  to="/login"
                   className="btn-primary text-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Sign In
+                  Login
                 </Link>
               )}
             </div>
