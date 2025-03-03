@@ -12,21 +12,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const staffFormSchema = z.object({
-  email: z.string().email("Invalid email address").nonempty("Email is required"),
-  firstName: z.string().min(2, "First name must be at least 2 characters").nonempty("First name is required"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters").nonempty("Last name is required"),
+  email: z.string().email("Invalid email address"),
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
   role: z.enum(["admin", "staff"]).default("staff"),
 });
 
@@ -51,16 +45,16 @@ export function AddStaffForm() {
       const { data: currentUser } = await supabase.auth.getUser();
       if (!currentUser.user) throw new Error("Not authenticated");
 
-      // Get the company profile
-      const { data: companyProfile } = await supabase
-        .from("company_profiles")
-        .select("id")
+      // Get the company profile ID
+      const { data: adminProfile } = await supabase
+        .from("profiles")
+        .select("company_id")
         .eq("id", currentUser.user.id)
         .single();
 
-      if (!companyProfile) throw new Error("Company profile not found");
+      if (!adminProfile?.company_id) throw new Error("Company profile not found");
 
-      // First create the auth user
+      // Create auth user for staff member
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: values.email,
         password: Math.random().toString(36).slice(-8), // Generate a random password
@@ -68,7 +62,6 @@ export function AddStaffForm() {
           data: {
             first_name: values.firstName,
             last_name: values.lastName,
-            is_staff: true,
           },
         },
       });
@@ -80,9 +73,11 @@ export function AddStaffForm() {
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
-          company_id: companyProfile.id,
+          company_id: adminProfile.company_id,
           role: values.role,
           user_type: "staff",
+          first_name: values.firstName,
+          last_name: values.lastName,
         })
         .eq("id", data.user.id);
 
@@ -114,7 +109,6 @@ export function AddStaffForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Email Field */}
         <FormField
           control={form.control}
           name="email"
@@ -129,7 +123,6 @@ export function AddStaffForm() {
           )}
         />
 
-        {/* First Name Field */}
         <FormField
           control={form.control}
           name="firstName"
@@ -144,7 +137,6 @@ export function AddStaffForm() {
           )}
         />
 
-        {/* Last Name Field */}
         <FormField
           control={form.control}
           name="lastName"
@@ -159,7 +151,6 @@ export function AddStaffForm() {
           )}
         />
 
-        {/* Role Field */}
         <FormField
           control={form.control}
           name="role"
@@ -182,13 +173,10 @@ export function AddStaffForm() {
           )}
         />
 
-        <Button 
-          type="submit" 
-          disabled={addStaffMutation.isPending}
-        >
+        <Button type="submit" disabled={addStaffMutation.isPending}>
           {addStaffMutation.isPending ? "Adding..." : "Add Staff Member"}
         </Button>
       </form>
     </Form>
   );
-}
+};

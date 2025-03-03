@@ -8,18 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, UserCog } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
-
-type StaffProfile = {
-  id: string;
-  email: string;
-  first_name: string | null;
-  last_name: string | null;
-  role: string;
-  user_type: string;
-};
+import type { StaffProfile } from "@/types/staff";
 
 const StaffList = () => {
   const { toast } = useToast();
@@ -31,21 +23,18 @@ const StaffList = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
-      // Get the company profile ID first
-      const { data: companyProfile } = await supabase
-        .from("company_profiles")
-        .select("id")
-        .eq("id", user.user.id)
-        .single();
-
-      if (!companyProfile) throw new Error("Company profile not found");
-
-      // Then get all staff members associated with this company
+      // Get all staff members associated with the company where the current user is an admin
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("company_id", companyProfile.id)
-        .eq("user_type", "staff");
+        .eq("user_type", "staff")
+        .eq("company_id", (
+          await supabase
+            .from("profiles")
+            .select("company_id")
+            .eq("id", user.user.id)
+            .single()
+        ).data?.company_id);
 
       if (error) throw error;
       return data as StaffProfile[];
@@ -54,7 +43,6 @@ const StaffList = () => {
 
   const removeStaffMutation = useMutation({
     mutationFn: async (staffId: string) => {
-      // We only update the company_id to null to revoke access
       const { error } = await supabase
         .from("profiles")
         .update({ company_id: null })
