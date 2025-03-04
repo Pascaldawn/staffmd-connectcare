@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { fetchAnalytics, type AnalyticsData } from "@/services/dataService";
+import { fetchAnalytics } from "@/services/dataService";
+import type { AnalyticsData } from "@/types/data";
 import {
   Card,
   CardContent,
@@ -18,15 +19,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { supabase } from "@/integrations/supabase/client";
-
-interface AnalyticsData {
-  total_appointments: number;
-  completed_appointments: number;
-  pending_appointments: number;
-  total_reviews_received: number;
-  average_rating_received: number | null;
-}
+import { Download, Calendar, Users, Star } from "lucide-react";
 
 const Analytics = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);

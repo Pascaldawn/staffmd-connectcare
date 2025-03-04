@@ -1,6 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { StaffProfile } from "@/types/staff";
+import type { AnalyticsData, PaymentWithProfiles, ReviewWithProfile } from "@/types/data";
 
 export interface AnalyticsData {
   total_appointments: number;
@@ -59,7 +59,6 @@ export const fetchProfile = async (userId: string): Promise<StaffProfile | null>
 };
 
 export const fetchAnalytics = async (): Promise<AnalyticsData | null> => {
-  // Instead of querying a non-existent table, let's aggregate the data we need
   const { data: appointments, error: appointmentsError } = await supabase
     .from("appointments")
     .select("status");
@@ -100,7 +99,8 @@ export const fetchPaymentHistory = async (): Promise<PaymentWithProfiles[]> => {
     .select(`
       *,
       paid_by_profile:profiles!paid_by(first_name, last_name),
-      paid_to_profile:profiles!paid_to(first_name, last_name)
+      paid_to_profile:profiles!paid_to(first_name, last_name),
+      appointment:appointments(start_time)
     `);
 
   if (error) {
@@ -108,7 +108,7 @@ export const fetchPaymentHistory = async (): Promise<PaymentWithProfiles[]> => {
     return [];
   }
 
-  return data || [];
+  return (data || []) as PaymentWithProfiles[];
 };
 
 export const fetchReviews = async (userId: string): Promise<ReviewWithProfile[]> => {
@@ -128,5 +128,5 @@ export const fetchReviews = async (userId: string): Promise<ReviewWithProfile[]>
     return [];
   }
 
-  return data || [];
+  return (data || []) as ReviewWithProfile[];
 };

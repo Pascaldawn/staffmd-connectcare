@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchPaymentHistory, type PaymentWithProfiles } from "@/services/dataService";
+import { fetchPaymentHistory } from "@/services/dataService";
+import type { PaymentWithProfiles } from "@/types/data";
 import {
   Table,
   TableBody,
@@ -14,7 +15,7 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const PaymentHistory = () => {
-  const { data: payments, isLoading } = useQuery({
+  const { data: payments, isLoading } = useQuery<PaymentWithProfiles[]>({
     queryKey: ['payments-history'],
     queryFn: fetchPaymentHistory
   });
