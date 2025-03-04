@@ -1,6 +1,5 @@
-
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchPaymentHistory, type PaymentWithProfiles } from "@/services/dataService";
 import {
   Table,
   TableBody,
@@ -17,24 +16,7 @@ import { Link } from "react-router-dom";
 const PaymentHistory = () => {
   const { data: payments, isLoading } = useQuery({
     queryKey: ['payments-history'],
-    queryFn: async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('Not authenticated');
-
-      const { data, error } = await supabase
-        .from('payments')
-        .select(`
-          *,
-          paid_by_profile:profiles!paid_by(first_name, last_name),
-          paid_to_profile:profiles!paid_to(first_name, last_name),
-          appointment:appointments(start_time)
-        `)
-        .or(`paid_by.eq.${user.user.id},paid_to.eq.${user.user.id}`)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data;
-    }
+    queryFn: fetchPaymentHistory
   });
 
   return (
@@ -73,7 +55,8 @@ const PaymentHistory = () => {
                       {format(new Date(payment.created_at), 'MMM d, yyyy')}
                     </TableCell>
                     <TableCell>
-                      Consultation with {payment.paid_to_profile?.first_name} {payment.paid_to_profile?.last_name}
+                      Payment from {payment.paid_by_profile?.first_name} {payment.paid_by_profile?.last_name}
+                      to {payment.paid_to_profile?.first_name} {payment.paid_to_profile?.last_name}
                       <br />
                       <span className="text-sm text-muted-foreground">
                         {payment.appointment?.start_time && 

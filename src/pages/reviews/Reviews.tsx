@@ -1,5 +1,5 @@
-
 import { useEffect, useState } from "react";
+import { fetchReviews, type ReviewWithProfile } from "@/services/dataService";
 import { Star } from "lucide-react";
 import {
   Card,
@@ -22,35 +22,21 @@ interface Review {
 }
 
 const Reviews = ({ userId }: { userId: string }) => {
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<ReviewWithProfile[]>([]);
   const [averageRating, setAverageRating] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchReviews = async () => {
-      const { data, error } = await supabase
-        .from("reviews")
-        .select(`
-          id,
-          rating,
-          content,
-          created_at,
-          reviewer:profiles!reviews_reviewer_id_fkey(
-            first_name,
-            last_name
-          )
-        `)
-        .eq("reviewee_id", userId)
-        .eq("is_visible", true)
-        .order("created_at", { ascending: false });
+    const loadReviews = async () => {
+      const data = await fetchReviews(userId);
+      setReviews(data);
 
-      if (!error && data) {
-        setReviews(data);
+      if (data) {
         const avg = data.reduce((acc, review) => acc + review.rating, 0) / data.length;
         setAverageRating(data.length > 0 ? avg : null);
       }
     };
 
-    fetchReviews();
+    loadReviews();
   }, [userId]);
 
   return (

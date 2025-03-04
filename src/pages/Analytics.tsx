@@ -1,6 +1,5 @@
-
 import { useEffect, useState } from "react";
-import { Download, Users, Calendar, Star } from "lucide-react";
+import { fetchAnalytics, type AnalyticsData } from "@/services/dataService";
 import {
   Card,
   CardContent,
@@ -35,27 +34,14 @@ const Analytics = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
-      const { data, error } = await supabase
-        .from("user_analytics")
-        .select("*")
-        .single();
-
-      if (error) {
-        console.error("Error fetching analytics:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load analytics data",
-          variant: "destructive",
-        });
-      } else if (data) {
-        setAnalytics(data);
-      }
+    const loadAnalytics = async () => {
+      const data = await fetchAnalytics();
+      setAnalytics(data);
       setIsLoading(false);
     };
 
-    fetchAnalytics();
-  }, [toast]);
+    loadAnalytics();
+  }, []);
 
   const handleExport = () => {
     if (!analytics) return;
