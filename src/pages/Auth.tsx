@@ -1,13 +1,14 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Building2 } from "lucide-react";
-import emailjs from '@emailjs/browser';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { sendVerificationEmail } from "@/services/emailjs";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -41,29 +42,33 @@ export default function Auth() {
           description: error.message,
         });
       } else if (data.user) {
-        await emailjs.send(
-          Deno.env.get("EMAILJS_SERVICE_ID")!,
-          Deno.env.get("EMAILJS_TEMPLATE_ID")!,
-          {
-            to_email: email,
-            to_name: `${firstName} ${lastName}`,
-            verification_url: data.user.confirmation_sent_at,
-          },
-          Deno.env.get("EMAILJS_PUBLIC_KEY")!
-        );
-
-        toast({
-          title: "Success!",
-          description: "Please check your email to verify your account.",
+        const emailResult = await sendVerificationEmail({
+          to_email: email,
+          to_name: `${firstName} ${lastName}`,
+          verification_url: `${window.location.origin}/verify?token=${data.user.confirmation_sent_at}`,
         });
-        navigate("/");
+
+        if (emailResult.success) {
+          toast({
+            title: "Success!",
+            description: "Please check your email to verify your account.",
+          });
+          navigate("/");
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Warning",
+            description: "Account created but verification email could not be sent. Please contact support.",
+          });
+          navigate("/");
+        }
       }
-    } catch (emailError) {
-      console.error("EmailJS error:", emailError);
+    } catch (error) {
+      console.error("Registration error:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to send verification email. Please try again.",
+        description: "An unexpected error occurred. Please try again.",
       });
     }
     
