@@ -1,7 +1,7 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Building2 } from "lucide-react";
+import emailjs from '@emailjs/browser';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,29 +22,49 @@ export default function Auth() {
     e.preventDefault();
     setIsLoading(true);
     
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          first_name: firstName,
-          last_name: lastName,
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+          },
         },
-      },
-    });
+      });
 
-    if (error) {
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message,
+        });
+      } else if (data.user) {
+        await emailjs.send(
+          Deno.env.get("EMAILJS_SERVICE_ID")!,
+          Deno.env.get("EMAILJS_TEMPLATE_ID")!,
+          {
+            to_email: email,
+            to_name: `${firstName} ${lastName}`,
+            verification_url: data.user.confirmation_sent_at,
+          },
+          Deno.env.get("EMAILJS_PUBLIC_KEY")!
+        );
+
+        toast({
+          title: "Success!",
+          description: "Please check your email to verify your account.",
+        });
+        navigate("/");
+      }
+    } catch (emailError) {
+      console.error("EmailJS error:", emailError);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: "Failed to send verification email. Please try again.",
       });
-    } else if (data.user) {
-      toast({
-        title: "Success!",
-        description: "Please check your email to verify your account.",
-      });
-      navigate("/");
     }
     
     setIsLoading(false);
