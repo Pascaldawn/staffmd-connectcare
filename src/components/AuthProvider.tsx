@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Session, User } from "@supabase/supabase-js";
@@ -25,8 +24,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
   const [profile, setProfile] = useState<StaffProfile | null>(null);
   const navigate = useNavigate();
 
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching profile:", error);
+      return;
+    }
+
+    if (data) {
+      const validRole = ["admin", "staff", "provider", "company"].includes(data.role) 
+        ? (data.role as StaffProfile['role'])
+        : "staff";
+
+      setProfile({
+        ...data,
+        role: validRole,
+        user_type: validRole,
+      } as StaffProfile);
+    }
+  };
+
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -35,7 +58,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       }
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -50,21 +72,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-
-    if (error) {
-      console.error("Error fetching profile:", error);
-      return;
-    }
-
-    setProfile(data);
-  };
 
   const signOut = async () => {
     await supabase.auth.signOut();

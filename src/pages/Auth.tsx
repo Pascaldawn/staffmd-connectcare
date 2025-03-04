@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Building2 } from "lucide-react";
@@ -31,6 +30,8 @@ export default function Auth() {
           data: {
             first_name: firstName,
             last_name: lastName,
+            role: 'staff',
+            user_type: 'staff',
           },
         },
       });
