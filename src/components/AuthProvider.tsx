@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Session, User } from "@supabase/supabase-js";
@@ -10,6 +11,7 @@ interface AuthContextType {
   user: User | null;
   profile: StaffProfile | null;
   signOut: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -17,6 +19,7 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
   signOut: async () => {},
+  refreshSession: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -25,15 +28,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<StaffProfile | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+  const refreshSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
       setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id).then(profile => setProfile(profile));
-      }
-    });
+      setUser(session.user);
+      const profile = await fetchProfile(session.user.id);
+      setProfile(profile);
+    }
+  };
 
+  useEffect(() => {
+    // Initial session check
+    refreshSession();
+
+    // Set up auth state change listener
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -47,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
+    // Clean up subscription
     return () => subscription.unsubscribe();
   }, []);
 
@@ -57,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, signOut }}>
+    <AuthContext.Provider value={{ session, user, profile, signOut, refreshSession }}>
       {children}
     </AuthContext.Provider>
   );
