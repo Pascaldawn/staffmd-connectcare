@@ -40,7 +40,7 @@ const ProcessPayment = () => {
         .from('appointments')
         .select(`
           *,
-          provider_profile:profiles!provider_id(first_name, last_name, id)
+          provider_profile:profiles!appointments_provider_id_fkey(first_name, last_name, id)
         `)
         .eq('id', appointmentId)
         .single();
