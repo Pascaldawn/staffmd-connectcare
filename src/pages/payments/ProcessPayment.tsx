@@ -40,7 +40,7 @@ const ProcessPayment = () => {
         .from('appointments')
         .select(`
           *,
-          provider:profiles!provider_id(first_name, last_name, id)
+          provider_profile:profiles!provider_id(first_name, last_name, id)
         `)
         .eq('id', appointmentId)
         .single();
@@ -170,7 +170,7 @@ const ProcessPayment = () => {
                 <>
                   Appointment scheduled for {format(new Date(appointment.start_time), 'MMMM d, yyyy h:mm a')}
                   <br />
-                  with Dr. {appointment?.provider.first_name} {appointment?.provider.last_name}
+                  with Dr. {appointment?.provider_profile?.first_name} {appointment?.provider_profile?.last_name}
                 </>
               )}
             </CardDescription>
