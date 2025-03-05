@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import type { StaffProfile } from "@/types/staff";
 import type { AnalyticsData, PaymentWithProfiles, ReviewWithProfile } from "@/types/data";
@@ -72,14 +73,15 @@ export const fetchPaymentHistory = async (): Promise<PaymentWithProfiles[]> => {
       paid_by_profile:profiles!paid_by(first_name, last_name),
       paid_to_profile:profiles!paid_to(first_name, last_name),
       appointment:appointments(start_time)
-    `);
+    `)
+    .returns<PaymentWithProfiles[]>();
 
   if (error) {
     console.error("Error fetching payments:", error);
     return [];
   }
 
-  return (data || []) as PaymentWithProfiles[];
+  return data || [];
 };
 
 export const fetchReviews = async (userId: string): Promise<ReviewWithProfile[]> => {
@@ -92,12 +94,15 @@ export const fetchReviews = async (userId: string): Promise<ReviewWithProfile[]>
       created_at,
       reviewer:profiles!reviews_reviewer_id_fkey(first_name, last_name)
     `)
-    .eq("reviewee_id", userId);
+    .eq("reviewee_id", userId)
+    .returns<ReviewWithProfile[]>();
 
   if (error) {
     console.error("Error fetching reviews:", error);
     return [];
   }
 
-  return (data || []) as ReviewWithProfile[];
+  return data || [];
 };
+
+export type { ReviewWithProfile };
